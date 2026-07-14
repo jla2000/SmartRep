@@ -11,12 +11,12 @@ Implementation checklist derived from [SPEC.md](SPEC.md). Check items off as the
 
 ## 2. Weigh-in (§2.1)
 
-- [ ] Weight entry model + DAO: one entry per calendar day, overwrite with confirmation (W-1)
-- [ ] Unit handling: kg/lb display, canonical kg storage at 0.05 kg precision (W-3)
-- [ ] Input validation: 20–350 kg range, > 5 % jump typo confirmation (W-4)
-- [ ] Edit, delete, and back-date entries with immediate recompute of derived values (W-2, W-8)
-- [ ] Optional note per entry (W-7)
-- [ ] Daily reminder notification with user-chosen time, deep link to entry field, default off (W-5)
+- [x] Weight entry model + DAO: one entry per calendar day, overwrite with confirmation (W-1)
+- [x] Unit handling: kg/lb display, canonical kg storage at 0.05 kg precision (W-3)
+- [x] Input validation: 20–350 kg range, > 5 % jump typo confirmation (W-4)
+- [x] Edit, delete, and back-date entries with immediate recompute of derived values (W-2, W-8)
+- [x] Optional note per entry (W-7)
+- [x] Daily reminder notification with user-chosen time, deep link to entry field, default off (W-5)
 
 ## 3. Goals (§2.2)
 
