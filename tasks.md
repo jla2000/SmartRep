@@ -1,60 +1,60 @@
-# SmartRep — Specification Tasks
+# SmartRep — Implementation Tasks
 
-Breakdown of the plan for authoring the SmartRep specification. Check items off as they are completed.
+Implementation checklist derived from [SPEC.md](SPEC.md). Check items off as they are implemented.
 
-## 1. Document skeleton
+## 1. Project setup
 
-- [x] Create `SPEC.md` at the repo root with metadata (version, date, status, platforms)
-- [x] Write §1 Overview & Goals: purpose, Flutter iOS + Android, offline-first/local-only principle
-- [x] List explicit v1 non-goals (cloud sync, accounts, food database, wearables)
-- [x] Lay out section headings for the rest of the document
+- [ ] Create Flutter project (iOS + Android) with `data/` / `domain/` / `presentation/` layering (§4.2)
+- [ ] Add dependencies: drift, riverpod, fl_chart, flutter_local_notifications (§4.1)
+- [ ] Set up CI: analyze, format check, unit tests
+- [ ] Set up drift database with schema: `weight_entries`, `goals`, `settings`, `recommendation_log` (§4.3)
 
-## 2. Daily weigh-in & goal setting (spec §2.1–2.2)
+## 2. Weigh-in (§2.1)
 
-- [x] Specify daily weigh-in: one entry per calendar day, edit/delete, back-dating, optional note
-- [x] Specify units: kg/lb display, canonical kg storage, input validation and typo guard
-- [x] Specify optional daily reminder notification
-- [x] Specify goal modes: rate mode (e.g. −1 kg/month) and energy mode (e.g. +250 kcal/day)
-- [x] Define normalization to kg/week via 7700 kcal ≈ 1 kg and 30.44-day months
-- [x] Define safety rails: warning above 1 % body-weight loss per week, hard cap at ±1.5 %
-- [x] Define maintain as a first-class goal and optional target weight (display-only)
+- [ ] Weight entry model + DAO: one entry per calendar day, overwrite with confirmation (W-1)
+- [ ] Unit handling: kg/lb display, canonical kg storage at 0.05 kg precision (W-3)
+- [ ] Input validation: 20–350 kg range, > 5 % jump typo confirmation (W-4)
+- [ ] Edit, delete, and back-date entries with immediate recompute of derived values (W-2, W-8)
+- [ ] Optional note per entry (W-7)
+- [ ] Daily reminder notification with user-chosen time, deep link to entry field, default off (W-5)
 
-## 3. Trend calculation & recommendation engine (spec §2.3–2.4)
+## 3. Goals (§2.2)
 
-- [x] Define rolling 7-day trend weight for display (min. 3 entries per window)
-- [x] Define weekly blocks from goal start (valid at ≥ 3 entries) and actual rate as an
-      ordinary-least-squares slope over the last 4 valid block averages (min. 2)
-- [x] Cover edge cases: data gaps, invalid blocks, incomplete current block, goal change, backdated edits
-- [x] Define recommendation formula: `adjustment = (target_rate − actual_rate) × 7700 / 7` kcal/day
-- [x] Define statuses: `insufficient_data` / `on_track` / `eat_more` / `eat_less` with thresholds
-- [x] Define damping rules: weekly cadence, ±500 kcal/day clamp, no advice until 2 valid blocks,
-      reset on goal change
-- [x] Define advice display setting: qualitative / numeric / both (default both)
+- [ ] Goal model + DAO: single active goal, deactivate-and-keep on change (G-1)
+- [ ] Rate mode input (kg or lb, per week or per month) with normalization to kg/week
+- [ ] Energy mode input (kcal/day) with normalization via 7700 kcal ≈ 1 kg
+- [ ] Live conversion preview showing the other representation in the goal editor
+- [ ] Maintain as first-class goal, `target_rate = 0` (G-2)
+- [ ] Safety rails: warning above 1 % body weight/week loss or 0.5 kg/week gain; hard cap ±1.5 % (G-3)
+- [ ] Optional target weight with projected arrival date, display-only (G-4)
 
-## 4. UI screens & app skeleton (spec §2.5, §3)
+## 4. Trend & recommendation engine (§2.3–2.4, pure domain logic)
 
-- [x] Specify dashboard: trend weight, goal summary, recommendation card, quick-add button
-- [x] Specify weigh-in entry, history list, and chart (raw dots + trend line + goal projection)
-- [x] Specify goal setup wizard and settings screen
-- [x] Sketch app shell: bottom nav with Weight (v1), Workouts (placeholder), Nutrition (placeholder), Settings
-- [x] Define how future modules plug into the shared local DB and dashboard
+- [ ] `trend.dart`: rolling 7-day trend weight, min. 3 entries per window (§2.3a)
+- [ ] Weekly blocks from goal `start_date`, valid at ≥ 3 entries, block averages (§2.3b)
+- [ ] Actual rate: OLS slope over last 4 valid block averages (min. 2), true block indices as x-values
+- [ ] Edge cases: skip invalid blocks, exclude incomplete current block, reset blocks on goal change
+- [ ] `recommendation.dart`: `adjustment = (target_rate − actual_rate) × 7700 / 7`, rounded to 10 kcal
+- [ ] Statuses with thresholds: `insufficient_data` / `on_track` (< 50) / `eat_more` / `eat_less` (§2.4)
+- [ ] Damping: update once per completed block (R-1), ±500 kcal/day clamp (R-2),
+      require 2 valid blocks (R-3), reset after goal change (R-4)
+- [ ] Persist recommendations to `recommendation_log` so the pinned card survives restarts
+- [ ] Unit tests for all worked examples in §5.1 and edge cases in §5.2
 
-## 5. Technical architecture (spec §4)
+## 5. Screens (§2.5)
 
-- [x] Choose stack and packages: Flutter/Dart, drift (SQLite), riverpod, fl_chart, flutter_local_notifications
-- [x] Define layering: `data/` / `domain/` (pure, unit-testable algorithms) / `presentation/`
-- [x] Define data model: `weight_entries`, `goals`, `settings`, `recommendation_log`
+- [ ] App shell: bottom nav with Weight, Workouts (placeholder), Nutrition (placeholder), Settings (§3)
+- [ ] Dashboard: trend weight + weekly delta, goal summary, recommendation card, quick-add button
+- [ ] Weigh-in entry: numeric pad pre-filled with last weight, date defaults to today, < 5 s flow
+- [ ] History: reverse-chronological list, swipe to edit/delete, back-dating
+- [ ] Chart: raw dots + trend line + goal projection line, 1M/3M/6M/1Y/all ranges,
+      weekly-averages overlay toggle
+- [ ] Goal setup wizard: direction → mode → value with live conversion → safety check → confirm
+- [ ] Settings: units, advice display style (qualitative/numeric/both), reminder, CSV export, full erase
 
-## 6. Acceptance criteria & roadmap (spec §5–6)
+## 6. Release readiness (§5.3)
 
-- [x] Write worked examples with verified math (losing too fast, surplus on track, maintain drift,
-      clamp, insufficient data)
-- [x] Write edge-case scenarios: gaps, mid-stream goal change, unit switching, backdated edit, safety rail
-- [x] Write non-functional requirements: < 5 s weigh-in flow, < 100 ms recompute, offline-only, test coverage
-- [x] Write roadmap: v1 weight feature, v1.x workouts, v2 nutrition + optional sync
-
-## 7. Finalize
-
-- [x] Consistency review: verify all kcal↔kg conversions and worked-example arithmetic
-- [x] Add minimal `README.md` pointing to the spec
-- [x] Commit and push to `claude/training-app-spec-8ldop0`
+- [ ] Performance: derived values recompute in < 100 ms with 5 years of daily data
+- [ ] Verify full functionality offline from first launch
+- [ ] Widget/integration tests for the weigh-in and goal-setup flows
+- [ ] App icons, store metadata, iOS + Android release builds
