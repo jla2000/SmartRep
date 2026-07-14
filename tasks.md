@@ -4,10 +4,10 @@ Implementation checklist derived from [SPEC.md](SPEC.md). Check items off as the
 
 ## 1. Project setup
 
-- [ ] Create Flutter project (iOS + Android) with `data/` / `domain/` / `presentation/` layering (§4.2)
-- [ ] Add dependencies: drift, riverpod, fl_chart, flutter_local_notifications (§4.1)
-- [ ] Set up CI: analyze, format check, unit tests
-- [ ] Set up drift database with schema: `weight_entries`, `goals`, `settings`, `recommendation_log` (§4.3)
+- [x] Create Flutter project (iOS + Android) with `data/` / `domain/` / `presentation/` layering (§4.2)
+- [x] Add dependencies: drift, riverpod, fl_chart, flutter_local_notifications (§4.1)
+- [x] Set up CI: analyze, format check, unit tests
+- [x] Set up drift database with schema: `weight_entries`, `goals`, `settings`, `recommendation_log` (§4.3)
 
 ## 2. Weigh-in (§2.1)
 

@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.6'
+          channel: 'stable'
+          cache: true
+
+      # package:sqlite3's build hook is configured (see pubspec.yaml
+      # `hooks.user_defines`) to dlopen the OS-provided libsqlite3 instead of
+      # downloading a pre-compiled binary, so native tests need it installed.
+      - name: Install system SQLite3
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Generated drift code (*.g.dart) is committed to the repo, so
+      # build_runner does not need to run in CI. If lib/data/database.dart
+      # changes without regenerating database.g.dart, `flutter analyze` and
+      # `flutter test` below will fail on the mismatch.
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
